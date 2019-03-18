@@ -3,14 +3,12 @@ class User {
     /**
      * Constructor
      * @param {String} userName
-     * @param {String} id
      * @param {String} userEmail 
-     * @param {String} userPassword 
+     * @param {String} userPassword
      * @param {String} token
      */
-    constructor (userName, id, userEmail, userPassword = null, token = null) {
+    constructor (userName, userEmail, userPassword = null, token = null) {
         this.userName = userName;
-        this.id = id;
         this.userEmail = userEmail;
         this.userPassword = userPassword;
         this.token = token;
@@ -26,15 +24,6 @@ class User {
         return this.userName;
     };
 
-
-    /**
-     * Get Id
-     * Public
-     * @returns {String}
-     */
-    GetId () {
-        return this.id;
-    };
 
     /**
      * Get UserEmail
@@ -70,7 +59,7 @@ class User {
      * Generate LogIn JSON
      * @returns {JSON}
      */
-    GenerateLogInJSON () {
+    GetLogInJSON () {
         const user = {
             userName : this.userName,
             userPassword : this.userPassword
@@ -78,4 +67,15 @@ class User {
         return user;
     }
 
-};
+    /**
+     * Get UserName JSON
+     * @returns {JSON}
+     */
+    GetUserNameJSON () {
+        const userName = {
+            userName : this.userName
+        };
+        return userName;
+    }
+
+}

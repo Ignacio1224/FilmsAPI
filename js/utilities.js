@@ -3,11 +3,67 @@ let database;
 
 
 
+function AddFilm(filmName, filmDuration, memoryAddress) {
+    
+    if (!ValidateField(filmName) && !ValidateField(filmDuration)) {
+        return false;
+    }
+
+    const film = new Film(filmName, filmDuration, memoryAddress);
+
+    const resAjax = AjaxPOST('http://127.0.0.9/addfilm.php', film.GetFilmJSON());
+    
+    if(resAjax){
+        resAjax
+
+        .done((success) => {
+            return success;
+        })
+        
+        .fail((error) => {
+            return error;
+        });
+
+    } else {
+        return false;
+    }
+}
+
 
 function AddImageDatabase(vehicle, url) {
     database.transaction((tx) => {
         tx.executeSql('INSERT INTO VehicleImage VALUES (?,?)', [vehicle, url]);
     });
+}
+
+
+function AjaxPOST (url, data = null) {
+    let ajax = null;
+
+    try {
+        ajax = $.ajax({
+
+            type: "POST",
+    
+            url,
+    
+            headers: {
+                Authorization: user.GetToken()
+            },
+    
+            contentType: 'application/x-www-form-urlencoded',
+    
+            dataType : 'JSON',
+    
+            data
+
+        });
+                
+    } catch (error) {
+        ajax = null;
+    }
+
+    return ajax;
 }
 
 
@@ -60,40 +116,39 @@ function IntroAction(el, fn, fnArgs = null) {
 }
 
 
-function LogIn() {
+function LogIn(userName, userPassword) {
 
     // database = window.openDatabase('Favourites', '1.0', 'Database for favourite workshops', 1024 * 1024 * 4);
 
-    // if (email !== '' && password !== '' && ValidateEmail(email)) {
+    if (userName !== '' && userPassword !== '' && ValidateField(userName)) {
 
-        user = new User('icabrera', null, null, '//122418');
+        user = new User(userName, null, userPassword);
 
-        const resAjax = AjaxPOST('http://127.0.0.9/login.php', user.GenerateLogInJSON());
+        const resAjax = AjaxPOST('http://127.0.0.9/login.php', user.GetLogInJSON());
 
         if (resAjax) {
             resAjax
             .done((response) => {
-                user = new User(response.userName, response.userId, response.userEmail, null, response.userToken);
-                console.log(user);
+                user = new User(response.userName, response.userEmail, null, response.userToken);
+                return true
             })
 
             .fail((error) => {
-                console.log("Error",error);
+                return error;
             });
+
         } else {
-            alert('Error');
+            return false;
         }
 
-    // } else {
-
-    //     alert('Usuario o clave incorrecto');
-
-    // }
+    } else {
+        return 'Usuario o clave incorrecto';
+    }
 }
 
 
 function LogOut() {
-    const resAjax = AjaxPOST('http://127.0.0.9/logout.php');
+    const resAjax = AjaxPOST('http://127.0.0.9/logout.php', user.GetUserNameJSON());
     
     if(resAjax){
         resAjax
@@ -141,39 +196,10 @@ function SaveFavouriteWorkshop(wrk, add = false) {
 
 
 function ValidateEmail(mail) {
-    let valid = false;
-    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
-        valid = true;
-    }
-    return (valid);
+    return (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail));
 }
 
 
-function AjaxPOST (url, data = null) {
-    let ajax = null;
-
-    try {
-        ajax = $.ajax({
-
-            type: "POST",
-    
-            url,
-    
-            headers: {
-                Authorization: user.GetToken()
-            },
-    
-            contentType: 'application/x-www-form-urlencoded',
-    
-            dataType : 'JSON',
-    
-            data
-
-        });
-                
-    } catch (error) {
-        ajax = null;
-    }
-
-    return ajax;
+function ValidateField(field) {
+    return ((field != '' && field != undefined && field != null && field !== 0));
 }
